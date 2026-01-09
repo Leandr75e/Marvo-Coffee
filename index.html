@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marvo Coffee And More | Chania, Crete</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #1a1a1a;
+            --white: #fafafa;
+            --gray: #666;
+            --light-gray: #f5f5f5;
+            --accent: #333;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            color: var(--black);
+            background: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Loader */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--black);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-text {
+            color: var(--white);
+            font-size: 2rem;
+            letter-spacing: 0.2em;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Language Selector */
+        .lang-selector {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 15px;
+            border-radius: 50px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 5px;
+        }
+
+        .lang-selector.hidden {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(20px);
+        }
+
+        .lang-btn {
+            background: none;
+            border: none;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .lang-btn.active {
+            color: var(--black);
+            font-weight: bold;
+        }
+
+        .lang-btn:hover {
+            color: var(--black);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            color: var(--black);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--black);
+            text-decoration: none;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--black);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .burger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .burger span {
+            width: 25px;
+            height: 2px;
+            background: var(--black);
+            transition: all 0.3s ease;
+        }
+
+        .burger.active span:nth-child(1) {
+            transform: rotate(45deg) translateY(7px);
+        }
+
+        .burger.active span:nth-child(2) {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        .burger.active span:nth-child(3) {
+            transform: rotate(-45deg) translateY(-7px);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background avec Parallaxe */
+        .hero-bg {
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: calc(100% + 100px);
+            background-image: url('https://img.freepik.com/free-photo/delicious-donuts-with-topping-arrangement_23-2150705213.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            z-index: 0;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        /* Overlay pour assombrir l'image */
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(26, 26, 26, 0.7) 0%,
+                rgba(26, 26, 26, 0.5) 50%,
+                rgba(26, 26, 26, 0.7) 100%
+            );
+            z-index: 1;
+        }
+
+        .hero-content {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s forwards 0.5s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            margin-bottom: 20px;
+            color: var(--white);
+            text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.95);
+            letter-spacing: 0.15em;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 14px 38px;
+            background: var(--white);
+            color: var(--black);
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            transition: all 0.3s;
+            border: 2px solid var(--white);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .cta-button:hover {
+            background: transparent;
+            color: var(--white);
+            border-color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .cta-button.cta-order {
+            background: var(--white);
+            color: var(--black);
+            margin-top: 20px; 
+        }
+
+        .cta-button.cta-order:hover {
+            background: transparent;
+            color: var(--white);
+            border-color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* About Section */
+        .about {
+            padding: 120px 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            background: var(--white); /* Ajouter cette ligne pour forcer le fond */
+        }
+
+        .about-image {
+            width: 100%;
+            height: 500px;
+            background: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800') center/cover;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.8s;
+        }
+
+        .about-image.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .about-text {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.8s;
+        }
+
+        .about-text.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 30px;
+        }
+
+        .about-text p {
+            font-size: 1.1rem;
+            color: var(--gray);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        /* Info Section */
+        .info-section {
+            padding: 100px 50px;
+            background: var(--white);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .info-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .info-card {
+            text-align: center;
+            padding: 40px 30px;
+            background: var(--light-gray);
+            border-radius: 4px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
+        }
+
+        .info-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .info-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .info-card h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            margin-bottom: 15px;
+            color: var(--black);
+        }
+
+        .info-card p {
+            color: var(--gray);
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .order-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 12px 30px;
+            background: var(--black);
+            color: var(--white);
+            text-decoration: none;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s;
+            border: 2px solid var(--black);
+        }
+
+        .order-button:hover {
+            background: transparent;
+            color: var(--black);
+        }
+
+        .map-wrapper {
+            width: 100%;
+            height: 450px;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
+        }
+
+        .map-wrapper.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Gallery Section */
+        .gallery {
+            padding: 120px 50px;
+            background: var(--light-gray);
+        }
+
+        .gallery-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 60px;
+        }
+
+        .gallery-item {
+            height: 300px;
+            overflow: hidden;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.5s;
+        }
+
+        .gallery-item.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        /* Menu Page */
+        .menu-hero {
+            padding: 150px 50px 80px;
+            text-align: center;
+            background: var(--light-gray);
+        }
+
+        .menu-sections {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 50px;
+        }
+
+        .menu-category {
+            margin-bottom: 80px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
+        }
+
+        .menu-category.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .menu-category h2 {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .menu-category h2::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 1px;
+            background: var(--black);
+            margin: 20px auto 0;
+        }
+
+        .menu-items {
+            display: grid;
+            gap: 30px;
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .menu-item-name {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .menu-item-desc {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+
+        .menu-item-price {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        /* Styles pour les Boutons du Menu */
+        .menu-actions {
+            display: flex;
+            flex-direction: column; /* Les boutons sont l'un sous l'autre par défaut */
+            gap: 15px;
+            padding: 30px 0;
+            margin: 20px auto 0;
+            max-width: 500px; /* Limite la largeur du conteneur des boutons */
+            text-align: center;
+        }
+
+        .action-button {
+            display: block;
+            padding: 15px 25px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .primary-button {
+            background-color: var(--accent); /* #333 de votre thème */
+            color: var(--white); /* Texte blanc */
+            border: 2px solid var(--accent);
+        }
+
+        .primary-button:hover {
+            background-color: var(--black);
+            border-color: var(--black);
+        }
+
+        .secondary-button {
+            background-color: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+
+        .secondary-button:hover {
+            background-color: var(--accent);
+            color: var(--white);
+        }
+
+        /* Media query pour les écrans plus larges (les boutons l'un à côté de l'autre) */
+        @media (min-width: 768px) {
+            .menu-actions {
+                flex-direction: row; /* Boutons côte à côte sur les grands écrans */
+                justify-content: center;
+                max-width: 700px;
+            }
+        }
+
+        /* Contact Page */
+        .contact-hero {
+            padding: 150px 50px 80px;
+            text-align: center;
+        }
+
+        .contact-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 50px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+        }
+
+        .contact-form {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
+        }
+
+        .contact-form.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background: var(--white);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--black);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--black);
+            color: var(--white);
+            border: 2px solid var(--black);
+            cursor: pointer;
+            letter-spacing: 0.1em;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .submit-btn:hover {
+            background: transparent;
+            color: var(--black);
+        }
+
+        .contact-info {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s;
+        }
+
+        .contact-info.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .info-item {
+            margin-bottom: 30px;
+        }
+
+        .info-item h3 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+            letter-spacing: 0.05em;
+        }
+
+        .info-item p {
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        .map-container {
+            margin-top: 40px;
+            height: 400px;
+            background: var(--light-gray);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--black);
+            color: var(--white);
+            padding: 60px 50px 30px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .social-links a {
+            color: var(--white);
+            font-size: 1.5rem;
+            transition: opacity 0.3s;
+        }
+
+        .social-links a:hover {
+            opacity: 0.7;
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Page Transitions */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Floating CTA Button */
+        .floating-cta {
+            position: fixed;
+            bottom: 100px;
+            right: 25px;
+            background: var(--black);
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 998;
+            transition: all 0.3s ease;
+            border: 2px solid var(--black);
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .floating-cta:hover {
+            background: var(--white);
+            color: var(--black);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .cta-icon {
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        .cta-text {
+            white-space: nowrap;
+        }
+
+        /* Floating E-food CTA Button */
+        .floating-cta-efood {
+            position: fixed;
+            bottom: 30px; 
+            right: 25px;
+            background: #e74c3c; 
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(231, 76, 60, 0.4);
+            z-index: 998;
+            transition: all 0.3s ease;
+            border: 2px solid #d65b4d;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .floating-cta-efood:hover {
+            background: #c5665b;
+            border-color: #c5665b;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(231, 77, 60, 0.4);
+        }
+
+        .floating-cta-efood .cta-icon {
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        .floating-cta-efood .cta-text {
+            white-space: nowrap;
+        }
+
+        /* Animation d'entrée */
+        .floating-cta-efood {
+            animation: slideInRight 0.6s ease-out 1.2s both;
+        }
+
+        /* Responsive pour mobile */
+        @media (max-width: 768px) {
+            .floating-cta-efood {
+                bottom: 20px; /* Ajuster la position sur mobile */
+                right: 20px;
+                padding: 10px 16px;
+                font-size: 0.8rem;
+            }
+
+            .floating-cta-efood .cta-icon {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .floating-cta-efood {
+                bottom: 15px;
+                right: 15px;
+                padding: 8px 14px;
+                font-size: 0.75rem;
+            }
+
+            .floating-cta-efood .cta-text {
+                max-width: 100px;
+            }
+        }
+
+        /* Animation d'entrée */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .floating-cta {
+            animation: slideInRight 0.6s ease-out 1s both;
+        }
+
+        /* Responsive pour mobile */
+        @media (max-width: 768px) {
+            .floating-cta {
+                bottom: 75px;
+                right: 20px;
+                padding: 8px 16px;
+                font-size: 0.8rem;
+            }
+
+            .cta-icon {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .floating-cta {
+                bottom: 60px;
+                right: 15px;
+                padding: 10px 16px;
+                font-size: 0.8rem;
+            }
+
+            .cta-text {
+                max-width: 100px;
+            }
+        }
+
+}
+
+        /* ============================================
+           ANIMATIONS MENU - SOBRES ET STYLÉES
+           ============================================ */
+
+        /* Animation des catégories au scroll */
+        .menu-category {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-category.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Animation en cascade pour les items du menu */
+        .menu-item {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-category.visible .menu-item {
+            animation: slideInLeft 0.6s forwards;
+        }
+
+        /* Délai progressif pour effet cascade */
+        .menu-category.visible .menu-item:nth-child(1) { animation-delay: 0.1s; }
+        .menu-category.visible .menu-item:nth-child(2) { animation-delay: 0.2s; }
+        .menu-category.visible .menu-item:nth-child(3) { animation-delay: 0.3s; }
+        .menu-category.visible .menu-item:nth-child(4) { animation-delay: 0.4s; }
+        .menu-category.visible .menu-item:nth-child(5) { animation-delay: 0.5s; }
+        .menu-category.visible .menu-item:nth-child(6) { animation-delay: 0.6s; }
+        .menu-category.visible .menu-item:nth-child(7) { animation-delay: 0.7s; }
+        .menu-category.visible .menu-item:nth-child(8) { animation-delay: 0.8s; }
+        .menu-category.visible .menu-item:nth-child(9) { animation-delay: 0.9s; }
+        .menu-category.visible .menu-item:nth-child(10) { animation-delay: 1s; }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Hover subtil sur les items */
+        .menu-item {
+            position: relative;
+            border-bottom: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            width: 0;
+            height: 2px;
+            background: var(--black);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-item:hover::before {
+            width: 100%;
+        }
+
+        .menu-item:hover {
+            background: rgba(0, 0, 0, 0.02);
+            padding-left: 10px;
+        }
+
+        /* Animation du titre de catégorie */
+        .menu-category h2::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 1px;
+            background: var(--black);
+            margin: 20px auto 0;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-category.visible h2::after {
+            width: 60px;
+        }
+
+        /* Animation des prix */
+        .menu-item-price {
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover .menu-item-price {
+            transform: scale(1.1);
+            color: var(--black);
+            font-weight: bold;
+        }
+
+        /* Animation du hero du menu */
+        .menu-hero h1 {
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInDown 0.8s forwards 0.2s;
+        }
+
+        .menu-hero p {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s forwards 0.4s;
+        }
+
+        @keyframes fadeInDown {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Animation subtile sur les descriptions */
+        .menu-item-desc {
+            transition: color 0.3s ease;
+        }
+
+        .menu-item:hover .menu-item-desc {
+            color: var(--black);
+        }
+
+        /* Amélioration du bouton Order */
+        .info-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .info-card:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+
+        .order-button {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .order-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .order-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Section de fermeture élégante avant Order */
+        .menu-closing-section {
+            text-align: center;
+            padding: 80px 20px 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-closing-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .closing-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+            color: var(--black);
+            position: relative;
+        }
+
+        .closing-title::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 2px;
+            background: var(--black);
+            margin: 25px auto 0;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-closing-section.visible .closing-title::after {
+            width: 80px;
+        }
+
+        .closing-subtitle {
+            font-size: 1.1rem;
+            color: var(--gray);
+            letter-spacing: 0.05em;
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        /* Animation au scroll */
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Responsive pour mobile */
+        @media (max-width: 768px) {
+            .menu-closing-section {
+                padding: 60px 20px 30px;
+            }
+            
+            .closing-title {
+                font-size: 1.8rem;
+                letter-spacing: 0.08em;
+            }
+            
+            .closing-subtitle {
+                font-size: 1rem;
+            }
+
+            /* Overlay sombre quand le menu est ouvert */
+            .menu-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                z-index: 997;
+                backdrop-filter: blur(3px);
+            }
+
+            .menu-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .closing-title {
+                font-size: 1.5rem;
+            }
+            
+            .closing-subtitle {
+                font-size: 0.95rem;
+            }
+
+            /* Overlay sombre quand le menu est ouvert */
+            .menu-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                z-index: 997;
+                backdrop-filter: blur(3px);
+            }
+
+            .menu-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            nav {
+                padding: 20px 30px;
+            }
+
+            .about {
+                background: var(--white) !important;
+            }
+
+            .nav-links {
+                position: fixed;
+                right: -100%;
+                top: 0;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 100px 50px;
+                width: 300px;
+                box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+                transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                z-index: 998;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            /* Animation des liens du menu mobile */
+            .nav-links.active li {
+                animation: slideInRight 0.5s ease forwards;
+                opacity: 0;
+            }
+
+            .nav-links.active li:nth-child(1) { animation-delay: 0.01s; }
+            .nav-links.active li:nth-child(2) { animation-delay: 0.05s; }
+            .nav-links.active li:nth-child(3) { animation-delay: 0.1s; }
+
+            @keyframes slideInRight {
+                from {
+                    opacity: 0;
+                    transform: translateX(50px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            /* Style amélioré des liens mobile */
+            .nav-links li {
+                margin: 15px 0;
+            }
+
+            .nav-links a {
+                font-size: 1.2rem;
+                padding: 10px 0;
+                display: block;
+                position: relative;
+            }
+
+            .nav-links a::after {
+                bottom: 0;
+                height: 2px;
+            }
+
+            /* Logo dans le menu mobile */
+            .nav-links::before {
+                content: 'MARVO';
+                position: absolute;
+                top: 30px;
+                left: 50px;
+                font-size: 1.5rem;
+                font-weight: bold;
+                letter-spacing: 0.2em;
+                color: var(--black);
+                opacity: 0;
+                transition: opacity 0.3s ease 0.2s;
+            }
+
+            .nav-links.active::before {
+                opacity: 1;
+            }
+
+            .hero-bg {
+                background-attachment: scroll;
+                background-position: center center;
+                top: 0;
+                height: 100%;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .burger {
+                display: flex;
+            }
+
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+                /* Hero plus visible sur mobile */
+            .hero-overlay {
+                background: linear-gradient(
+                    135deg,
+                    rgba(26, 26, 26, 0.75) 0%,
+                    rgba(26, 26, 26, 0.6) 50%,
+                    rgba(26, 26, 26, 0.75) 100%
+                );
+            }
+
+            .about {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                background: var(--light-gray) !important;
+                padding: 80px 30px;
+            }
+
+            .info-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .info-section {
+                padding: 80px 30px;
+                background: var(--white);
+            }
+
+            .map-wrapper {
+                height: 350px;
+            }
+
+            .gallery {
+                background: var(--black);
+            }
+
+            .gallery .section-title {
+                color: var(--white);
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .contact-container {
+                grid-template-columns: 1fr;
+                gap: 60px;
+                padding: 60px 30px;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+                letter-spacing: 0.15em;
+            }
+
+            .hero-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-button {
+                padding: 10px 26px;
+                font-size: 0.9rem;
+            }
+
+            .lang-selector {
+                top: 100px;
+                right: 10px; /* Déplace les langues à  gauche du burger menu */
+                padding: 8px 10px;
+            }
+            
+            .lang-btn {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="loader-text">MARVO</div>
+    </div>
+
+    <!-- Language Selector -->
+    <div class="lang-selector">
+        <button class="lang-btn active" data-lang="en"> EN</button>
+        <button class="lang-btn" data-lang="gr"> ΕΛ</button>
+        <button class="lang-btn" data-lang="fr"> FR</button>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">MARVO</div>
+        <ul class="nav-links">
+            <li><a href="#" data-page="home" class="nav-link" data-en="Home" data-gr="Αρχική" data-fr="Accueil">Home</a></li>
+            <li><a href="#" data-page="menu" class="nav-link" data-en="Menu" data-gr="Μενού" data-fr="Menu">Menu</a></li>
+            <li><a href="#" data-page="contact" class="nav-link" data-en="Contact" data-gr="Επικοινωνία" data-fr="Contact">Contact</a></li>
+        </ul>
+        <div class="burger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div class="page active" id="home">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-bg"></div>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1 data-en="MARVO" data-gr="MARVO">MARVO</h1>
+                <p class="hero-subtitle" data-en="Coffee & More in Chania" data-gr="Καφές & Περισσότερα στα Χανιά" data-fr="Coffee and More, La Canée">Coffee & More in Chania</p>
+                <a href="#" class="cta-button" data-page="menu" data-en="Explore Menu" data-gr="Δείτε το Μενού" data-fr="Découvrir le Menu">Explore Menu</a>
+
+                <a href="https://www.e-food.gr/delivery/chania-kriti/marvo-coffee-and-more-8230831" 
+                   target="_blank" 
+                   class="cta-button cta-order" 
+                   data-en="Order Now" 
+                   data-gr="Παραγγελία Τώρα" 
+                   data-fr="Commander">
+                   Order Now
+                </a>
+                </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="about">
+            <div class="about-image"></div>
+            <div class="about-text">
+                <h2 class="section-title" data-en="Our Story" data-gr="Η Ιστορία Μας" data-fr="Notre Histoire">Our Story</h2>
+                <p data-en="Nestled in the heart of Chania historic old town, Marvo Coffee And More is where tradition meets contemporary coffee culture. We are passionate about serving the finest specialty coffee, handcrafted with care and precision." 
+                   data-gr="Φιλοξενούμενο στην καρδιά της ιστορικής παλιάς πόλης των Χανίων, το Marvo Coffee And More είναι εκεί όπου η παράδοση συναντά τη σύγχρονη κουλτούρα του καφέ. Είμαστε παθιασμένοι με το να σερβίρουμε τον καλύτερο specialty καφέ, φτιαγμένο με φροντίδα και ακρίβεια."
+                   data-fr="Niché au cœur de la vieille ville historique de La Canée, Marvo Coffee And More est à rencontre de la tradition et de la culture du café contemporaine. Nous sommes passionnés par le service du meilleur café de spécialité, préparé avec soin et précision.">
+                    Nestled in the heart of Chania historic old town, Marvo Coffee And More is where tradition meets contemporary coffee culture. We are passionate about serving the finest specialty coffee, handcrafted with care and precision.
+                </p>
+                <p data-en="From our signature Freddo Espresso to traditional Greek coffee, every cup tells a story of Cretan hospitality and quality. Join us for a moment of tranquility in our welcoming space." 
+                   data-gr="Από το χαρακτηριστικό μας Freddo Espresso μέχρι τον παραδοσιακό ελληνικό καφέ, κάθε φλιτζάνι λέει μια ιστορία κρητικής φιλοξενίας και ποιότητας. Ελάτε μαζί μας για μια στιγμή ηρεμίας στον φιλόξενο χώρο μας."
+                   data-fr="De notre Freddo Espresso signature au café grec traditionnel, chaque tasse raconte une histoire d'hospitalité crétoise et de qualité. Rejoignez-nous pour un moment de tranquillité dans notre espace accueillant.">
+                    From our signature Freddo Espresso to traditional Greek coffee, every cup tells a story of Cretan hospitality and quality. Join us for a moment of tranquility in our welcoming space.
+                </p>
+            </div>
+        </section>
+
+        <!-- Info Section -->
+        <section class="info-section">
+            <h2 class="section-title" style="text-align: center; margin-bottom: 60px;" 
+                data-en="We're Waiting For You!" 
+                data-gr="Σας περιμένουμε!" 
+                data-fr="Nous vous attendons!">
+                We're Waiting For You!
+            </h2>
+
+            <div class="info-container">
+                <div class="info-card">
+                    <div class="info-icon">📍</div>
+                    <h3 data-en="Location" data-gr="Τοποθεσία" data-fr="Localisation">Location</h3>
+                    <p data-en="Polychroni Polycronidi 33, Chania<br>Crete, Greece 731 32" 
+                       data-gr="Πολυχρόνι Πολυκρονίδη 33, Χανιά<br>Κρήτη, Ελλάδα 731 32"
+                       data-fr="Polychroni Polikronidi 33, La Canée, Crète, Grèce 731 32">
+                        Polychroni Polycronidi 33, Chania<br>Crete, Greece 731 32
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">🕐</div>
+                    <h3 data-en="Opening Hours" data-gr="Ωράριο" data-fr="Horaires">Opening Hours</h3>
+                    <p data-en="Monday - Sunday<br>7:00 AM - 9:00 PM" 
+                       data-gr="Δευτέρα - Κυριακή<br>7:00 π.μ. - 9:00 μ.μ."
+                       data-fr="Lundi - Dimanche<br>7h00 - 21h00">
+                        Monday - Sunday<br>7:00 AM - 9:00 PM
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">🛵</div>
+                    <h3 data-en="Order Online" data-gr="Παραγγελία Online" data-fr="Commander en ligne">Order Online</h3>
+                    <a href="https://www.e-food.gr/delivery/chania-kriti/marvo-coffee-and-more-8230831" target="_blank" class="order-button" data-en="Order on e-food" data-gr="Παραγγελία στο e-food" data-fr="Commander sur e-food">
+                        Order on e-food
+                    </a>
+                </div>
+            </div>
+
+            <div class="map-wrapper">
+                    <iframe 
+                        src="https://www.google.com/maps?q=Marvo+Coffee+And+More,+Chania+Old+Town,+Crete&hl=en&z=17&output=embed" 
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section class="gallery">
+            <h2 class="section-title" style="text-align: center;" data-en="Experience Marvo" data-gr="Ζήστε το Marvo" data-fr="Découvrez Marvo">Experience Marvo</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?w=600" alt="Coffee">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600" alt="Cafe Interior">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600" alt="Pastries">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600" alt="Coffee Art">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600" alt="Greek Desserts">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600" alt="Chania View">
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Menu Page -->
+    <div class="page" id="menu">
+        <div class="menu-hero">
+            <h1 class="section-title" data-en="Our Menu" data-gr="Το Μενού Μας" data-fr="Notre Menu">Our Menu</h1>
+            <p style="color: var(--gray); margin-top: 20px;" data-en="Crafted with passion, served with love" data-gr="Φτιαγμένο με πάθος, σερβιρισμένο με αγάπη" data-fr="Préparé avec passion, servi avec amour">Crafted with passion, served with love</p>
+        </div>
+
+        <div class="menu-sections">
+
+            <div class="menu-category visible">
+                <h2 data-en="Coffee Selection" data-gr="Επιλογή Καφέδων" data-fr="Sélection de Cafés">Coffee Selection</h2>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Freddo Espresso" data-gr="Φρέντο Εσπρέσο" data-fr="Freddo Espresso">Freddo Espresso</div>
+                            <div class="menu-item-desc" data-en="Cold espresso with foam" data-gr="Κρύος εσπρέσο με αφρό" data-fr="Expresso froid mousseux">Cold espresso with foam</div>
+                        </div>
+                        <div class="menu-item-price">€3.50</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Freddo Cappuccino" data-gr="Φρέντο Καπουτσίνο" data-fr="Freddo Cappuccino">Freddo Cappuccino</div>
+                            <div class="menu-item-desc" data-en="Cold cappuccino with milk foam" data-gr="Κρύο καπουτσίνο με αφρόγαλα" data-fr="Cappuccino froid avec mousse de lait">Cold cappuccino with milk foam</div>
+                        </div>
+                        <div class="menu-item-price">€4.00</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Greek Coffee" data-gr="Ελληνικός Καφές" data-fr="Café Grec">Greek Coffee</div>
+                            <div class="menu-item-desc" data-en="Traditional Greek coffee" data-gr="Παραδοσιακός ελληνικός καφές" data-fr="Café grec traditionnel">Traditional Greek coffee</div>
+                        </div>
+                        <div class="menu-item-price">€2.50</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Filter Coffee" data-gr="Φίλτρου Καφές" data-fr="Café filtré">Filter Coffee</div>
+                            <div class="menu-item-desc" data-en="Single origin specialty coffee" data-gr="Specialty καφές single origin" data-fr="Café spécialité d'origine unique">Single origin specialty coffee</div>
+                        </div>
+                        <div class="menu-item-price">€4.50</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-category visible">
+                <h2 data-en="Pastries" data-gr="Σφολιάτες & Πίτες" data-fr="Pâtisseries Salées & Sucrées">Pastries</h2>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Cheese Pie" data-gr="Τυρόπιτα" data-fr="Feuilleté au Fromage">Cheese Pie</div>
+                            <div class="menu-item-desc" data-en="A delicious cheese pie." data-gr="Μια νόστιμη τυρόπιτα." data-fr="Un délicieux feuilleté au fromage.">A delicious cheese pie.</div>
+                        </div>
+                        <div class="menu-item-price">€1.60</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Kalitsounia with myzithra" data-gr="Καλιτσούνια με μυζήθρα" data-fr="Kalitsounia à la myzithra">Kalitsounia with myzithra</div>
+                            <div class="menu-item-desc" data-en="Piece" data-gr="Τεμάχιο" data-fr="Pièce">Piece</div>
+                        </div>
+                        <div class="menu-item-price">€0.90</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Kalitsounia mixed" data-gr="Καλιτσούνια ανάμεικτα" data-fr="Kalitsounia mixte">Kalitsounia mixed</div>
+                            <div class="menu-item-desc" data-en="Piece. With myzithra & feta" data-gr="Τεμάχιο. Με μυζήθρα & φέτα" data-fr="Pièce. Avec myzithra & feta">Piece. With myzithra & feta</div>
+                        </div>
+                        <div class="menu-item-price">€0.90</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Sweet lychnarakia" data-gr="Λυχναράκια γλυκά" data-fr="Lychnarakia sucré">Sweet lychnarakia</div>
+                            <div class="menu-item-desc" data-en="Piece" data-gr="Τεμάχιο" data-fr="Pièce">Piece</div>
+                        </div>
+                        <div class="menu-item-price">€0.90</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Flute Philadelphia" data-gr="Φλογέρα Φιλαδέλφεια" data-fr="Flûte Philadelphia">Flute Philadelphia</div>
+                            <div class="menu-item-desc" data-en="A masterpiece that reproduces sounds and sensations." data-gr="Εδώ έχουμε ένα έργο τέχνης, ένα αριστούργημα..." data-fr="Un chef-d'œuvre qui reproduit sons et sensations.">A masterpiece...</div>
+                        </div>
+                        <div class="menu-item-price">€2.20</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Pizza special" data-gr="Pizza special" data-fr="Pizza spéciale">Pizza special</div>
+                            <div class="menu-item-desc" data-en="With gouda, green pepper, ham & bacon" data-gr="Με gouda, πράσινη πιπεριά, ζαμπόν & μπέικον" data-fr="Avec gouda, poivron vert, jambon & bacon">With gouda, green pepper, ham & bacon</div>
+                        </div>
+                        <div class="menu-item-price">€2.50</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Peinirli" data-gr="Πεϊνιρλί" data-fr="Peinirli">Peinirli</div>
+                            <div class="menu-item-desc" data-en="With gouda & bacon" data-gr="Με gouda & μπέικον" data-fr="Avec gouda & bacon">With gouda & bacon</div>
+                        </div>
+                        <div class="menu-item-price">€2.50</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Brioche sausage pie" data-gr="Λουκανικόπιτα μπριός" data-fr="Feuilleté saucisse brioché">Brioche sausage pie</div>
+                            <div class="menu-item-desc" data-en="Double Frankfurt sausage & mozzarella" data-gr="Διπλό λουκάνικο Φρανκφούρτης & μοτσαρέλα" data-fr="Double saucisse de Francfort & mozzarella">Double Frankfurt sausage & mozzarella</div>
+                        </div>
+                        <div class="menu-item-price">€2.30</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Ham & cheese pie" data-gr="Ζαμπονοτυρόπιτα" data-fr="Feuilleté jambon-fromage">Ham & cheese pie</div>
+                            <div class="menu-item-desc" data-en="A mouthwatering ham and cheese pie." data-gr="Μια λαχταριστή ζαμπονοτυρόπιτα." data-fr="Un délicieux feuilleté au jambon et fromage.">A mouthwatering ham and cheese pie.</div>
+                        </div>
+                        <div class="menu-item-price">€2.70</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Chicken Pie" data-gr="Κοτόπιτα" data-fr="Tourte au poulet">Chicken Pie</div>
+                            <div class="menu-item-desc" data-en="Enjoy a hearty piece of this favorite traditional pie." data-gr="Απόλαυσε ένα χορταστικό κομμάτι αυτής της αγαπημένης..." data-fr="Savourez une part généreuse de cette tourte traditionnelle.">Enjoy a hearty piece...</div>
+                        </div>
+                        <div class="menu-item-price">€3.00</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Grape pie" data-gr="Σταφιδόπιτα" data-fr="Feuilleté aux raisins">Grape pie</div>
+                            <div class="menu-item-desc" data-en="Crispy phyllo dough, rich kasseri cheese." data-gr="Τραγανό φύλλο, πλούσιο τυρί κασέρι." data-fr="Pâte phyllo croustillante, riche fromage kasseri.">Crispy phyllo dough...</div>
+                        </div>
+                        <div class="menu-item-price">€2.70</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Cheese pie with honey" data-gr="Τυρόπιτα με μέλι" data-fr="Feuilleté fromage et miel">Cheese pie with honey</div>
+                            <div class="menu-item-desc" data-en="Crunchy and tasty in every bite" data-gr="Τραγανή και γευστική σε κάθε μπουκιά" data-fr="Croustillant et savoureux à chaque bouchée">Crunchy and tasty in every bite</div>
+                        </div>
+                        <div class="menu-item-price">€2.20</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-category visible">
+                <h2 data-en="Sandwiches" data-gr="Σάντουιτς" data-fr="Sandwichs">Sandwiches</h2>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="White baguette with chicken" data-gr="Λευκή μπαγκέτα με κοτόπουλο" data-fr="Baguette blanche au poulet">White baguette with chicken</div>
+                            <div class="menu-item-desc" data-en="With chicken, parmesan, tomato, lollo & Caesar's sauce" data-gr="Με κοτόπουλο, παρμεζάνα, ντομάτα, λόλα & σως Caesar" data-fr="Avec poulet, parmesan, tomate, lollo & sauce César">With chicken, parmesan, tomato, lollo & Caesar's sauce</div>
+                        </div>
+                        <div class="menu-item-price" data-en="From €3.50" data-gr="Από €3.50" data-fr="Dès 3.50€">From €3.50</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Baguette white turkey" data-gr="Λευκή μπαγκέτα γαλοπούλα" data-fr="Baguette blanche dinde">Baguette white turkey</div>
+                            <div class="menu-item-desc" data-en="With turkey, gouda, tomato, lollo and mayonnaise" data-gr="Με γαλοπούλα, gouda, ντομάτα, λόλα και μαγιονέζα" data-fr="Avec dinde, gouda, tomate, lollo et mayonnaise">With turkey, gouda, tomato, lollo and mayonnaise</div>
+                        </div>
+                        <div class="menu-item-price" data-en="From €3.20" data-gr="Από €3.20" data-fr="Dès 3.20€">From €3.20</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Turkey tortilla" data-gr="Τορτίγια γαλοπούλα" data-fr="Tortilla à la dinde">Turkey tortilla</div>
+                            <div class="menu-item-desc" data-en="With turkey, gouda, tomato, lollies & mayonnaise" data-gr="Με γαλοπούλα, gouda, ντομάτα, λόλα & μαγιονέζα" data-fr="Avec dinde, gouda, tomate, lollo & mayonnaise">With turkey, gouda, tomato, lollo & mayonnaise</div>
+                        </div>
+                        <div class="menu-item-price" data-en="From €2.20" data-gr="Από €2.20" data-fr="Dès 2.20€">From €2.20</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Arab chicken pie" data-gr="Αραβική πίτα κοτόπουλο" data-fr="Pain pita au poulet">Arab chicken pie</div>
+                            <div class="menu-item-desc" data-en="With chicken, gouda, tomato, lollies & mayonnaise" data-gr="Με κοτόπουλο, gouda, ντομάτα, λόλα & μαγιονέζα" data-fr="Avec poulet, gouda, tomate, lollo & mayonnaise">With chicken, gouda, tomato, lollo & mayonnaise</div>
+                        </div>
+                        <div class="menu-item-price" data-en="From €2.70" data-gr="Από €2.70" data-fr="Dès 2.70€">From €2.70</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-category visible">
+                <h2 data-en="Panini" data-gr="Πανίνι" data-fr="Panini">Panini</h2>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Panini village" data-gr="Panini χωριάτικο" data-fr="Panini village">Panini village</div>
+                            <div class="menu-item-desc" data-en="With lola, mizithra cheese, cherry tomatoes, cucumber, green pepper, oil & oregano" data-gr="Με λόλα, μυζήθρα, ντοματίνια, αγγούρι, πράσινη πιπεριά, λάδι & ρίγανη" data-fr="Avec lola, myzithra, tomates cerises, concombre, poivron vert, huile & origan">With lola, mizithra cheese...</div>
+                        </div>
+                        <div class="menu-item-price">€4.20</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Panini chicken" data-gr="Panini κοτόπουλο" data-fr="Panini poulet">Panini chicken</div>
+                            <div class="menu-item-desc" data-en="With chicken, parmesan, lollo rosso tomato & Caesar's sauce" data-gr="Με κοτόπουλο, παρμεζάνα, ντομάτα, λόλα ρόσο & σως Caesar" data-fr="Avec poulet, parmesan, tomate, lollo rosso & sauce César">With chicken, parmesan...</div>
+                        </div>
+                        <div class="menu-item-price">€4.50</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Panini turkey" data-gr="Panini γαλοπούλα" data-fr="Panini dinde">Panini turkey</div>
+                            <div class="menu-item-desc" data-en="With turkey, gouda, tomato, lollies & mayonnaise" data-gr="Με γαλοπούλα, gouda, ντομάτα, λόλα & μαγιονέζα" data-fr="Avec dinde, gouda, tomate, lollo & mayonnaise">With turkey, gouda, tomato...</div>
+                        </div>
+                        <div class="menu-item-price">€3.20</div>
+                    </div>
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Panini pork gyro" data-gr="Panini γύρος χοιρινός" data-fr="Panini gyros porc">Panini pork gyro</div>
+                            <div class="menu-item-desc" data-en="With mayonnaise, ketchup & tomato" data-gr="Με μαγιονέζα, κέτσαπ & ντομάτα" data-fr="Avec mayonnaise, ketchup & tomate">With mayonnaise, ketchup & tomato</div>
+                        </div>
+                        <div class="menu-item-price">€3.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-category visible">
+                <h2 data-en="Snacks" data-gr="Σνακς" data-fr="Snacks">Snacks</h2>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Variety of Snacks" data-gr="Ποικιλία Σνακς" data-fr="Variété de Snacks">Variety of Snacks</div>
+                            <div class="menu-item-desc" data-en="Ask for our daily selection of snacks." data-gr="Ρωτήστε μας για την ημερήσια επιλογή σνακς." data-fr="Demandez notre sélection de snacks du jour.">Ask for our daily selection of snacks.</div>
+                        </div>
+                        <div class="menu-item-price" data-en="Various" data-gr="Διάφορα" data-fr="Variés">Various</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-category visible">
+                <h2 data-en="Beverages" data-gr="Ποτά & Αναψυκτικά" data-fr="Boissons">Beverages</h2>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div>
+                            <div class="menu-item-name" data-en="Soft Drinks & Juices" data-gr="Αναψυκτικά & Χυμοί" data-fr="Boissons fraîches & Jus">Soft Drinks & Juices</div>
+                            <div class="menu-item-desc" data-en="A wide selection of cold beverages, fresh juices, and more." data-gr="Μεγάλη ποικιλία από κρύα αναψυκτικά, φρέσκους χυμούς και άλλα." data-fr="Une large sélection de boissons fraîches, jus frais, et plus encore.">A wide selection of cold beverages...</div>
+                        </div>
+                        <div class="menu-item-price" data-en="Various" data-gr="Διάφορα" data-fr="Variés">Various</div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- Sous-titre avant la section Order -->
+                <div class="menu-closing-section">
+                    <h2 class="closing-title" 
+                        data-en="We'll be happy to see you" 
+                        data-gr="Θα χαρούμε να σας δούμε" 
+                        data-fr="Nous serons ravis de vous voir">
+                        We'll be happy to see you
+                    </h2>
+                    <p class="closing-subtitle" 
+                    data-en="Visit us or order online for delivery" 
+                    data-gr="Επισκεφθείτε μας ή παραγγείλτε online για delivery" 
+                    data-fr="Visitez-nous ou commandez en ligne pour la livraison">
+                        Visit us or order online for delivery
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">🛵</div>
+                    <h3 data-en="Order Online" data-gr="Παραγγελία Online" data-fr="Commander en ligne">Order Online</h3>
+                    <a href="https://www.e-food.gr/delivery/chania-kriti/marvo-coffee-and-more-8230831" target="_blank" class="order-button" data-en="Order on e-food" data-gr="Παραγγελία στο e-food" data-fr="Commander sur e-food">
+                        Order on e-food
+                    </a>
+                </div>
+            </div>
+
+            <div class="map-wrapper">
+                <iframe src="https://www.google.com/maps?q=Marvo+Coffee+And+More,+Chania+Old+Town,+Crete&hl=en&z=17&output=embed"
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy">
+                </iframe>
+            </div>
+        
+    </div>
+    <!-- Contact Page -->
+    <div class="page" id="contact">
+        <div class="contact-hero">
+            <h1 class="section-title" data-en="Visit Us" data-gr="Επισκεφθείτε μας" data-fr="Venez nous voir">Visit Us</h1>
+            <p style="color: var(--gray); margin-top: 20px;" data-en="We'd love to see you" data-gr="Θα χαρούμε να σας δούμε" data-fr="Nous serions ravis de vous voir">We'd love to see you</p>
+        </div>
+
+        <div class="contact-container">
+            <div class="contact-form">
+                <h2 style="margin-bottom: 30px;" data-en="Send us a message" data-gr="Στείλτε μας μήνυμα" data-fr="Envoyez-nous un message">Send us a message</h2>
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label data-en="Name" data-gr="Όνομα" data-fr="Nom">Name</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-en="Email" data-gr="Email" data-fr="Email">Email</label>
+                        <input type="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-en="Phone" data-gr="Τηλέφωνο" data-fr="Téléphone">Phone</label>
+                        <input type="tel">
+                    </div>
+                    <div class="form-group">
+                        <label data-en="Message" data-gr="Μήνυμα" data-fr="Message">Message</label>
+                        <textarea required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn" data-en="Send Message" data-gr="Αποστολή Μηνύματος" data-fr="Envoyer un message">Send Message</button>
+                </form>
+            </div>
+
+            <div class="contact-info">
+                <div class="info-item">
+                    <h3 data-en="Address" data-gr="Διεύθυνση" data-fr="Adresse">Address</h3>
+                    <p data-en="Polychroni Polycronidi 33, Chania<br>Crete, Greece 731 32" data-gr="Πολυχρόνι Πολυκρονίδη 33, Χανιά<br>Κρήτη, Ελλάδα 731 32" data-fr="Polychroni Polikronidi 33, La Canée, Crète, Grèce 731 32">Polychroni Polycronidi 33, Chania<br>Crete, Greece 731 32</p>
+                </div>
+
+                <div class="info-item">
+                    <h3 data-en="Hours" data-gr="Ωράριο" data-fr="Horaires">Hours</h3>
+                    <p data-en="Monday - Sunday<br>7:00 AM - 9:00 PM" data-gr="Δευτέρα - Κυριακή<br>7:00 π.μ. - 9:00 μ.μ." data-fr="Lundi - Dimanche<br>7h00 - 21h00">Monday - Sunday<br>8:00 AM - 11:00 PM</p>
+                    </p>
+                </div>
+
+                <div class="info-item">
+                    <h3 data-en="Contact" data-gr="Επικοινωνία" data-fr="Contact">Contact</h3>
+                    <p>
+                        Phone: +33 28210 23130<br>
+                        Email: info@marvocoffee.gr
+                    </p>
+                </div>
+
+                <div class="map-container">
+                    <iframe src="https://www.google.com/maps?q=Marvo+Coffee+And+More,+Chania+Old+Town,+Crete&hl=en&z=17&output=embed" 
+                            width="100%" 
+                            height="100%" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+
+    <!-- Floating CTA Button -->
+        <a href="#" class="floating-cta" data-page="menu">
+            <span class="cta-icon">☕</span>
+            <span class="cta-text" data-en="Menu" data-gr="ΔΜενού" data-fr="Menu">Menu</span>
+        </a>
+    <!-- Floating E-food CTA Button -->
+        <a href="https://www.e-food.gr/delivery/chania-kriti/marvo-coffee-and-more-8230831" target="_blank" class="floating-cta-efood">
+            <span class="cta-icon">🛵</span>
+            <span class="cta-text" data-en="Order" data-gr="Παραγγελία" data-fr="Commander">Order</span>
+        </a>
+
+    <footer>
+        <div class="footer-content">
+            <div class="social-links">
+                <a href="https://www.instagram.com/marvo_coffee_and_more/">📷</a>
+                <a href="https://www.facebook.com/people/Marvo-Coffee-and-More/61579088520369/">📘</a>
+                <a href="https://www.e-food.gr/delivery/chania-kriti/marvo-coffee-and-more-8230831">🍴</a>
+                <a href="https://maps.app.goo.gl/jvroJY63TEreXid96">📌</a>
+            </div>
+            <p class="footer-text">© 2025 Marvo Coffee And More | Chania, Crete</p>
+        </div>
+    </footer>
+
+    <script>
+        // Loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 1500);
+        });
+
+        // Mobile Navigation améliorée
+        const burger = document.querySelector('.burger');
+        const navLinks = document.querySelector('.nav-links');
+        const langSelector = document.querySelector('.lang-selector');
+
+        // Crée l'overlay
+        const overlay = document.createElement('div');
+        overlay.classList.add('menu-overlay');
+        document.body.appendChild(overlay);
+
+        // Toggle du menu
+        burger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            burger.classList.toggle('active');
+            overlay.classList.toggle('active');
+            langSelector.classList.toggle('hidden');
+            
+            // Empêche le scroll quand le menu est ouvert
+            document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+        });
+
+        // Ferme le menu en cliquant sur l'overlay
+        overlay.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            burger.classList.remove('active');
+            overlay.classList.remove('active');
+            langSelector.classList.remove('hidden');
+            document.body.style.overflow = '';
+        });
+
+        // Ferme le menu après avoir cliqué sur un lien
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                burger.classList.remove('active');
+                overlay.classList.remove('active');
+                langSelector.classList.remove('hidden');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Page Navigation
+        const navLinkElements = document.querySelectorAll('.nav-link');
+        const pages = document.querySelectorAll('.page');
+
+        navLinkElements.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.getAttribute('data-page');
+                
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                document.getElementById(pageId).classList.add('active');
+                
+                navLinks.classList.remove('active');
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // CTA Button Navigation
+    document.querySelectorAll('.cta-button[data-page]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = btn.getAttribute('data-page');
+                
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                document.getElementById(pageId).classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Floating CTA Navigation
+        const floatingCta = document.querySelector('.floating-cta');
+        if (floatingCta) {
+            floatingCta.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = floatingCta.getAttribute('data-page');
+                
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                });
+                
+                document.getElementById(pageId).classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Cacher le bouton sur la page Menu
+            const checkPage = () => {
+                const menuPage = document.getElementById('menu');
+                if (menuPage && menuPage.classList.contains('active')) {
+                    floatingCta.style.display = 'none';
+                } else {
+                    floatingCta.style.display = 'flex';
+                }
+            };
+
+            // Vérifier au chargement et lors des changements de page
+            checkPage();
+            document.querySelectorAll('.nav-link, .cta-button').forEach(link => {
+                link.addEventListener('click', () => {
+                    setTimeout(checkPage, 100);
+                });
+            });
+        }
+
+        // Language Switcher
+        const langButtons = document.querySelectorAll('.lang-btn');
+        let currentLang = 'en';
+
+        langButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                langButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLang = btn.getAttribute('data-lang');
+                updateLanguage();
+            });
+        });
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-en]').forEach(el => {
+                const text = el.getAttribute(`data-${currentLang}`);
+                if (text) {
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                        el.placeholder = text;
+                    } else {
+                        el.innerHTML = text;
+                    }
+                }
+            });
+        }
+
+        // Scroll Animations
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.about-image, .about-text, .info-card, .map-wrapper, .gallery-item, .menu-category, .contact-form, .contact-info').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Form Submission
+        document.getElementById('contactForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const messages = {
+                en: 'Message sent! We\'ll get back to you soon.',
+                gr: 'Το μήνυμα στάλθηκε! Θα επικοινωνήσουμε σύντομα.',
+                fr: 'Message envoyé ! Nous vous répondrons bientà´t.'
+            };
+            alert(messages[currentLang]);
+            e.target.reset();
+        });
+
+        // Effet Parallaxe sur le Hero
+        let heroSection = document.querySelector('.hero');
+        let heroBg = document.querySelector('.hero-bg');
+
+        if (heroSection && heroBg) {
+            window.addEventListener('scroll', () => {
+                // Vérifier si on est sur la page d'accueil
+                let homePage = document.getElementById('home');
+                if (homePage && homePage.classList.contains('active')) {
+                    let scrolled = window.pageYOffset;
+                    let parallaxSpeed = 0.5; // Vitesse du parallaxe (0.5 = moitié de la vitesse normale)
+                    
+                    // Appliquer l'effet uniquement si on est dans la section hero
+                    if (scrolled < heroSection.offsetHeight) {
+                        heroBg.style.transform = `translateY(${scrolled * parallaxSpeed}px)`;
+                    }
+                }
+            });
+        }
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Animation pour la section closing
+        const closingSection = document.querySelector('.menu-closing-section');
+        if (closingSection) {
+            observer.observe(closingSection);
+        }
+
+    </script>
+</body>
+</html>
